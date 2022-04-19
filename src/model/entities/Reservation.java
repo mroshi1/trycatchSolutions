@@ -4,18 +4,24 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import model.exceptions.DomainException;
+
 public class Reservation {
 
 	private Integer roomNumber;
 	private Date checkIn;
 	private Date checkOut;
-	
+
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
 	public Reservation() {
-		
+
 	}
 
-	public Reservation(Integer roomNumber, Date checkIn, Date checkOut) {
+	public Reservation(Integer roomNumber, Date checkIn, Date checkOut){
+		if (!checkOut.after(checkIn)) {
+			throw new DomainException("Data de check-out precisa ser posterior ao check-in");
+		}
 		this.roomNumber = roomNumber;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
@@ -39,27 +45,29 @@ public class Reservation {
 
 	public long duration() {
 		long diff = checkOut.getTime() - checkIn.getTime();
-		return TimeUnit.DAYS.convert(diff,TimeUnit.MILLISECONDS);
-		
+		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+
 	}
-	public String updateDates(Date checkIn, Date checkOut) {
+
+	public void updateDates(Date checkIn, Date checkOut)  {
 
 		Date now = new Date();
-		if(checkIn.before(now)||checkOut.before(now)) {
-			return "Atualizações precisam ser para datas futuras !!";
+		if (checkIn.before(now) || checkOut.before(now)) {
+			throw new DomainException("Atualizações precisam ser para datas futuras !!");
 		}
-		 if(!checkOut.after(checkIn)) {
-			return "Data de check-out precisa ser posterior ao check-in";
+		if (!checkOut.after(checkIn)) {
+			throw new DomainException("Data de check-out precisa ser posterior ao check-in");
 		}
-		
+
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
-		return null;
 	}
+
 	@Override
-	
+
 	public String toString() {
-		
-		return "Quarto "+roomNumber+",\nCheckIn: "+sdf.format(checkIn)+"\nCheckout: "+sdf.format(checkOut)+"\nDuração: "+duration()+" noites ";
+
+		return "Quarto " + roomNumber + ",\nCheckIn: " + sdf.format(checkIn) + "\nCheckout: " + sdf.format(checkOut)
+				+ "\nDuração: " + duration() + " noites ";
 	}
 }
